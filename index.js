@@ -65,6 +65,15 @@ async function run() {
         res.send(result);
     })
 
+    app.get('/api/my/companies', async(req,res)=>{
+        const query = {};
+        if(req.query.recruiter_id){
+            query.recruiter_id = req.query.recruiter_id;
+        }
+        const result = await companyCollection.findOne(query);
+        res.send(result);
+    })
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });

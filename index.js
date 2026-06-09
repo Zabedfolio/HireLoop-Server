@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 
 
@@ -39,7 +39,11 @@ async function run() {
 
     app.post('/api/jobs', async(req,res)=>{
         const job = req.body;
-        const result = await jobCollection.insertOne(job);
+        const newJob = {
+          ...job,
+          createAt: new Date()
+        }
+        const result = await jobCollection.insertOne(newJob);
         res.send(result);
     })
 
@@ -57,11 +61,24 @@ async function run() {
         res.send(result);
     })
 
+    app.get('/api/jobs/:id', async(req,res)=>{
+        const id = req.params.id;
+        const query = {
+          _id: new ObjectId(id)
+        };
+        const result = await jobCollection.findOne(query);
+        res.send(result);
+    })
+
 
     //companies api
     app.post('/api/companies', async(req,res)=>{
         const company = req.body;
-        const result = await companyCollection.insertOne(company);
+        const newCompany = {
+          ...company,
+          createAt: new Date()
+        }
+        const result = await companyCollection.insertOne(newCompany);
         res.send(result);
     })
 
@@ -71,7 +88,7 @@ async function run() {
             query.recruiter_id = req.query.recruiter_id;
         }
         const result = await companyCollection.findOne(query);
-        res.send(result);
+        res.send(result || {});
     })
 
 

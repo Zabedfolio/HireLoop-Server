@@ -35,8 +35,11 @@ async function run() {
 
     const db = client.db("hireloop-db");
     const jobCollection = db.collection("jobs");
+    const usersCollection = db.collection("user");
     const companyCollection = db.collection("companies");
     const applicationCollection = db.collection("applications");
+    const plansCollection = db.collection("plans")
+    const subscriptionCollection = db.collection("subscriptions")
 
     app.post('/api/jobs', async(req,res)=>{
         const job = req.body;
@@ -118,6 +121,35 @@ async function run() {
         res.send(result);
     })
 
+    // plans
+    app.get('/api/plans', async(req,res)=>{
+      const query = {};
+      if(req.query.plan_id){
+        query.id = req.query.plan_id
+      }
+      const plan = await plansCollection.findOne(query)
+      res.send(plan)
+    })
+
+    // subscription
+    app.post('/api/subscriptions', async(req,res)=>{
+      const data = req.body
+      const subsInfo ={
+        ...data,
+        createdAt: new Date()
+      }
+      const result = await subscriptionCollection.insertOne(subsInfo)
+
+      //  update information
+      const filter = {email: data.email};
+      const updateDocument ={
+        $set:{  
+          plan: data.planId
+        },
+      };
+      const updateResult = await usersCollection.updateOne(filter, updateDocument);
+      res.send(updateResult)
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });

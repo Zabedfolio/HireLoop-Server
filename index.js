@@ -77,10 +77,28 @@ async function run() {
 
     //companies api
 
+    // app.get('/api/companies', async(req,res)=>{
+    //   const cursor = companyCollection.find();
+    //   const result = await cursor.toArray();
+    //   res.send(result)
+    // })
+
+
+    // inefficient way to join collection/aggregate
     app.get('/api/companies', async(req,res)=>{
       const cursor = companyCollection.find();
-      const result = await cursor.toArray();
-      res.send(result)
+      const companies = await cursor.toArray();
+
+
+      for(const company of companies){
+        const filter ={
+          companyId: company._id.toString()
+        }
+        const jobCount = await jobCollection.countDocuments();
+        company.jobCount = jobCount
+      }
+
+      res.send(companies)
     })
 
     app.post('/api/companies', async(req,res)=>{
